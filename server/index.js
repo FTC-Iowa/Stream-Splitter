@@ -2,14 +2,48 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
+const cors = require('cors')
 
 const bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+var whitelist = ['http://localhost:8080', 'http://localhost:3000']
+var corsOptions = {
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+            callback(null, true)
+        } else {
+            callback(new Error('Not allowed by CORS'))
+        }
+    }
+}
+
+app.use(cors());
+
 const port = 3000;
 var sock = null;
+
+function log(message) {
+    console.log(message);
+    sendMessage('log', message);
+}
+
+function error(message){
+    console.log(message);
+    sendMessage('error', message);
+}
+
+function sendMessage(type, message) {
+    sock.emit('message', { 
+        type: type,
+        time: Date.now(),
+        message: message
+    });
+}
+
+
 
 server.listen(port, () => console.log(`Listening on port ${port}`));
 
@@ -18,10 +52,13 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
-app.post('/start', (req, res) => {
-    console.log('req:', req.body);
-    let yt_id = req.body.id;
-    let toa_id = req.body.toa;
+sock.on('start', (data) => {
+    // console.log('req:', req.body);
+    // res.header('Access-Control-Allow-Origin', '*')
+    let yt_id = data.id;
+    let toa_id = data.toa;
+
+    log("Start Download of " + yt_id);
 
     const video = ytdl(yt_id);
     let starttime;
@@ -42,9 +79,10 @@ app.post('/start', (req, res) => {
     });
     video.on('end', () => {
         process.stdout.write('\n\n');
+        log("Finished Download of " + yt_id);
     });
 
-    res.sendStatus(200);
+    // res.sendStatus(200);
 
 })
 
@@ -62,8 +100,5 @@ const output = path.resolve(__dirname, 'video.mpeg');
 
 io.on('connection', function(socket) {
     sock = socket;
-    socket.emit('news', { hello: 'world' });
-    socket.on('my other event', function(data) {
-        console.log(data);
-    });
+    log("Socket connected")
 });
