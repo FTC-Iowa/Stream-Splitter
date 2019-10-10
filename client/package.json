@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "core-js": "^2.6.5",
+    "date-format": "^2.1.0",
+    "socketio": "^1.0.0",
     "vue": "^2.6.10",
     "vuetify": "^2.1.0"
   },
