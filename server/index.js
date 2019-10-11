@@ -35,3 +35,26 @@ io.on('connection', function(socket) {
         sessions = sessions.filter((val) => val !== session);
     })
 });
+
+const axios = require('axios')
+const api_key = '';
+const toa_url = 'https://theorangealliance.org/api/';
+
+const toa = axios.create({
+    baseURL: toa_url,
+    timeout: 1000,
+    headers: {
+        'Content-Type': 'application/json',
+        'X-TOA-Key': api_key,
+        'X-Application-Origin': 'jvens'
+    },
+})
+
+toa.get('event/1920-ISR-TEST/matches').then((response) => {
+    console.log(response.data);
+}).catch((err) => {
+    console.error(err);
+})
+
+
+
