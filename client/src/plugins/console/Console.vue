@@ -6,7 +6,7 @@
 
 <script>
 import ConsoleEntry from './ConsoleEntry.vue'
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 
 const dateFormat = require('date-format');
 
@@ -26,8 +26,7 @@ export default {
         this.$console.log = this.log;
         this.$console.error = this.error;
 
-        this.socket = io('http://localhost:3000');
-        this.socket.on('message', this.message);
+        this.$socket.on('message', this.message);
     },
     methods: {
         // log message from the client
